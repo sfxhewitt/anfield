@@ -81,8 +81,8 @@ nav svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.6}na
 <script>
 const API='https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/teams/364',LFC='364',$=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-async function get(u,fb){const k='c:'+u;try{let r;try{r=await fetch(u,{cache:'no-store'});if(!r.ok)throw 0}catch(e){r=await fetch('data/'+fb+'.json',{cache:'no-store'});if(!r.ok)throw 0}const j=await r.json();try{localStorage[k]=JSON.stringify({t:Date.now(),j})}catch(e){}return j}catch(e){const c=localStorage[k];if(c){const o=JSON.parse(c);stale=o.t;return o.j}throw e}}
-let stale=0;
+async function get(u,fb){const k='c:'+u;try{let r;try{r=await fetch(u,{cache:'no-store'});if(!r.ok)throw 0}catch(e){const c=localStorage[k];if(c){const o=JSON.parse(c);stale=o.t;return o.j}fb_=1;r=await fetch('data/'+fb+'.json',{cache:'no-store'});if(!r.ok)throw 0}const j=await r.json();try{localStorage[k]=JSON.stringify({t:Date.now(),j})}catch(e){}return j}catch(e){const c=localStorage[k];if(c){const o=JSON.parse(c);stale=o.t;return o.j}throw e}}
+let stale=0,fb_=0;
 const tz={timeZone:'Europe/London'},fd=d=>new Date(d).toLocaleDateString('en-GB',{...tz,weekday:'short',day:'numeric',month:'short'}),ft=d=>new Date(d).toLocaleTimeString('en-GB',{...tz,hour:'2-digit',minute:'2-digit'});
 const logo=t=>t?.logos?.[0]?.href||t?.logo||'';
 function parse(ev){const c=ev.competitions[0],h=c.competitors.find(x=>x.homeAway=='home'),a=c.competitors.find(x=>x.homeAway=='away');const us=h.team.id==LFC?h:a,them=us===h?a:h;
@@ -96,7 +96,7 @@ async function load(){
  D.tab=t.value?.children?.[0]?.standings?.entries||[];D.season=t.value?.children?.[0]?.abbreviation||'';
  D.sq=r.value?.athletes||[];
  home();fixtures();table();squad();
- $('#upd').textContent=stale?'Offline · last updated '+new Date(stale).toLocaleString('en-GB',{...tz,day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'Live data · ESPN · '+D.season;
+ $('#upd').textContent=fb_&&!stale?'Saved snapshot · ESPN · '+D.season:stale?'Offline · last updated '+new Date(stale).toLocaleString('en-GB',{...tz,day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'Live data · ESPN · '+D.season;
 }
 const S=e=>{const v=(e.stats||[]).reduce((o,x)=>(o[x.name]=x.value,o),{});return v};
 function side(x){return `<div class="side"><img src="${esc(logo(x.team))}" alt=""><b>${esc(x.team.shortDisplayName||x.team.displayName)}</b><i>${x.homeAway}</i></div>`}
